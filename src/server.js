@@ -47,8 +47,9 @@ const upload = multer({
     fileSize: 50 * 1024 * 1024 // 50MB max
   },
   fileFilter: (req, file, cb) => {
-    if (path.extname(file.originalname).toLowerCase() !== '.zip') {
-      return cb(new Error('Only .zip files are allowed'));
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ext !== '.zip' && ext !== '.pbo') {
+      return cb(new Error('Only .zip and .pbo files are allowed'));
     }
     cb(null, true);
   }
@@ -85,14 +86,13 @@ app.post('/api/analyze', upload.single('modFile'), async (req, res) => {
     filePath = req.file.path;
     console.log(`Analyzing: ${req.file.originalname} (${req.file.size} bytes)`);
 
-    // Parse files from zip
     const parser = new FileParser(filePath);
     const files = await parser.parse();
 
     if (files.length === 0) {
       return res.json({
         success: false,
-        error: 'No script files (.c, .cpp) found in zip',
+        error: 'No script files (.c, .cpp) found in archive',
         fileName: req.file.originalname
       });
     }

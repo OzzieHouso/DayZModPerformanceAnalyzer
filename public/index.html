@@ -110,8 +110,8 @@
                             </label>
                             <span class="text-gray-500"> or drag and drop</span>
                         </p>
-                        <p class="text-sm text-gray-500">ZIP file up to 50MB</p>
-                        <input id="fileInput" type="file" accept=".zip" class="hidden">
+                        <p class="text-sm text-gray-500">ZIP or PBO file up to 50MB</p>
+                        <input id="fileInput" type="file" accept=".zip,.pbo" class="hidden">
                     </div>
 
                     <div id="fileInfo" class="hidden mt-6 p-5 bg-blue-500/10 border border-blue-500/30 rounded-xl backdrop-blur-sm">
@@ -231,7 +231,7 @@
             <div id="issuesSection" class="gradient-border overflow-hidden">
                 <div class="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm p-10">
                     <h2 class="text-3xl font-bold text-white mb-8">Issues Found</h2>
-                    <div id="issuesList"></div>
+                    <div id="issuesList" class="max-h-[600px] overflow-y-auto pr-2 space-y-4"></div>
                 </div>
             </div>
 

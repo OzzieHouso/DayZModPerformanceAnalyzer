@@ -50,8 +50,8 @@ function handleFileSelect(e) {
 }
 
 function handleFile(file) {
-    if (!file.name.endsWith('.zip')) {
-        showError('Please select a .zip file');
+    if (!file.name.endsWith('.zip') && !file.name.endsWith('.pbo')) {
+        showError('Please select a .zip or .pbo file');
         return;
     }
 

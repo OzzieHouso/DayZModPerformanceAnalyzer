@@ -9,17 +9,38 @@
 import AdmZip from 'adm-zip';
 import { promises as fs } from 'fs';
 import path from 'path';
+import { PBOParser } from './pboParser.js';
 
-// Handles zip file extraction and parsing
+// Handles zip and PBO file extraction and parsing
 export class FileParser {
-  constructor(zipPath) {
-    this.zipPath = zipPath;
+  constructor(filePath) {
+    this.filePath = filePath;
     this.files = [];
   }
 
   async parse() {
+    const ext = path.extname(this.filePath).toLowerCase();
+
+    if (ext === '.pbo') {
+      return this.parsePBO();
+    } else {
+      return this.parseZip();
+    }
+  }
+
+  async parsePBO() {
     try {
-      const zip = new AdmZip(this.zipPath);
+      const pboParser = new PBOParser(this.filePath);
+      this.files = await pboParser.parse();
+      return this.files;
+    } catch (error) {
+      throw new Error(`Failed to parse PBO file: ${error.message}`);
+    }
+  }
+
+  async parseZip() {
+    try {
+      const zip = new AdmZip(this.filePath);
       const zipEntries = zip.getEntries();
 
       for (const entry of zipEntries) {
