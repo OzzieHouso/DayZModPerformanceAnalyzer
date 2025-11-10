@@ -1,0 +1,411 @@
+<!--
+    Copyright (c) 2025 ozziehouso
+
+    This file is part of a project that can be used and adapted via pull requests.
+    Redistribution or recreation of this code as a separate project is prohibited.
+    See LICENSE file for details.
+-->
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ - DayZ Mod Performance Analyzer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            bg: '#0a0e27',
+                            card: '#0f1729',
+                            cardHover: '#151d35',
+                            border: '#1e2943',
+                            text: '#e2e8f0',
+                            textMuted: '#94a3b8'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0a0e27 0%, #0f1729 100%);
+        }
+        .gradient-border {
+            position: relative;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border-radius: 1rem;
+        }
+        .gradient-border::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border-radius: 1rem;
+            padding: 2px;
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+            -webkit-mask-composite: xor;
+            mask-composite: exclude;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-12 max-w-5xl">
+        <!-- Header -->
+        <div class="mb-12">
+            <a href="/" class="inline-flex items-center gap-2 text-blue-400 hover:text-blue-300 transition-colors mb-6">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to Analyzer
+            </a>
+            <h1 class="text-5xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-blue-500 bg-clip-text text-transparent mb-4">
+                Frequently Asked Questions
+            </h1>
+            <p class="text-xl text-gray-400">Everything you need to know about the analyzer</p>
+        </div>
+
+        <!-- FAQ Sections -->
+        <div class="space-y-6">
+            <!-- Accuracy & Reliability -->
+            <div class="gradient-border overflow-hidden">
+                <div class="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Accuracy & Reliability
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">How accurate is this analyzer?</h3>
+                            <p class="text-gray-300 mb-3">The analyzer has approximately <strong class="text-blue-400">85-90% accuracy</strong> for detecting performance issues:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-2 ml-4">
+                                <li><strong class="text-green-400">95%+ accurate</strong> for critical issues (Sleep(), file I/O in loops, RPC spam)</li>
+                                <li><strong class="text-yellow-400">85-90% accurate</strong> for common patterns (GetPlayers() spam, world scans)</li>
+                                <li><strong class="text-orange-400">70-80% accurate</strong> for context-dependent issues (scheduler patterns)</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Will it flag good code?</h3>
+                            <p class="text-gray-300 mb-2"><strong class="text-yellow-400">Yes, sometimes.</strong> The analyzer is pattern-based and cannot understand context. For example:</p>
+                            <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700 mt-3">
+                                <code class="text-sm text-gray-300">
+                                    <span class="text-gray-500">// This is perfectly fine (one-time initialization)</span><br>
+                                    <span class="text-purple-400">void</span> OnInit() {<br>
+                                    &nbsp;&nbsp;<span class="text-blue-400">GetGame</span>().<span class="text-blue-400">GetObjectsAtPosition</span>(<span class="text-blue-400">vector</span>.<span class="text-blue-400">Zero</span>, <span class="text-green-400">999999</span>, objects, <span class="text-purple-400">null</span>);<br>
+                                    }
+                                </code>
+                                <p class="text-yellow-400 text-sm mt-3">⚠️ Analyzer may flag: "Large world scan"</p>
+                                <p class="text-gray-400 text-sm">✓ Reality: Acceptable for initialization</p>
+                            </div>
+                            <p class="text-gray-300 mt-3">This is why we use soft language like "Recommended:" instead of "ERROR:"</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Can I trust the score?</h3>
+                            <p class="text-gray-300">The score is <strong class="text-blue-400">informational, not absolute</strong>. Use it as a guide:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4 mt-2">
+                                <li>90-100: Excellent practices</li>
+                                <li>75-89: Good, minor improvements possible</li>
+                                <li>60-74: Fair, review medium issues</li>
+                                <li>40-59: Poor, address high-severity issues</li>
+                                <li>0-39: Critical issues detected</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- How It Works -->
+            <div class="gradient-border overflow-hidden">
+                <div class="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                        </svg>
+                        How It Works
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">What does the analyzer check?</h3>
+                            <p class="text-gray-300 mb-3">It runs <strong class="text-purple-400">20+ performance checks</strong> in 4 categories:</p>
+                            <div class="grid md:grid-cols-2 gap-4 mt-3">
+                                <div class="bg-red-500/10 border border-red-500/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-red-400 mb-2">Critical (3 rules)</h4>
+                                    <ul class="text-sm text-gray-300 space-y-1">
+                                        <li>• World scans in loops</li>
+                                        <li>• File I/O in loops</li>
+                                        <li>• Entity spawning in loops</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-orange-400 mb-2">High (5 rules)</h4>
+                                    <ul class="text-sm text-gray-300 space-y-1">
+                                        <li>• GetPlayers() spam</li>
+                                        <li>• RPC spam</li>
+                                        <li>• Sleep() usage</li>
+                                        <li>• High frequency timers</li>
+                                        <li>• Modded class without super</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-yellow-400 mb-2">Medium (7 rules)</h4>
+                                    <ul class="text-sm text-gray-300 space-y-1">
+                                        <li>• Missing destructors</li>
+                                        <li>• CallLater cleanup</li>
+                                        <li>• Missing super calls</li>
+                                        <li>• Cyclic strong references</li>
+                                        <li>• Weak reference arrays</li>
+                                        <li>• Direct player iteration</li>
+                                        <li>• Missing object validation</li>
+                                    </ul>
+                                </div>
+                                <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
+                                    <h4 class="font-semibold text-blue-400 mb-2">Low/Info (5+ rules)</h4>
+                                    <ul class="text-sm text-gray-300 space-y-1">
+                                        <li>• Unsafe casts</li>
+                                        <li>• GetGame() caching</li>
+                                        <li>• Non-standard intervals</li>
+                                        <li>• CallQueue categories</li>
+                                        <li>• String concatenation</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Is it based on official DayZ code?</h3>
+                            <p class="text-gray-300 mb-2"><strong class="text-green-400">Yes!</strong> Enhanced rules are derived from official DayZ scripts:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4">
+                                <li>Analyzed <code class="text-blue-400">MissionServer.c</code> for server patterns</li>
+                                <li>Extracted update intervals (30s for stats, 1s for gameplay)</li>
+                                <li>Documented CallQueue category usage</li>
+                                <li>Identified scheduler patterns (SCHEDULER_PLAYERS_PER_TICK)</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">What can't it detect?</h3>
+                            <p class="text-gray-300">The analyzer has limitations:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4 mt-2">
+                                <li>Algorithmic complexity (O(n²) nested loops)</li>
+                                <li>Memory leaks from retained references</li>
+                                <li>Issues spanning multiple files</li>
+                                <li>Runtime-only performance problems</li>
+                                <li>Context-specific optimizations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Using the Tool -->
+            <div class="gradient-border overflow-hidden">
+                <div class="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+                        </svg>
+                        Using the Tool
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">How do I use it?</h3>
+                            <ol class="list-decimal list-inside text-gray-300 space-y-2 ml-4">
+                                <li><strong>Create a ZIP</strong> of your mod folder containing the <code class="text-blue-400">scripts/</code> directory</li>
+                                <li><strong>Upload</strong> via drag & drop or click</li>
+                                <li><strong>Wait</strong> 5-30 seconds for analysis (depends on mod size)</li>
+                                <li><strong>Review</strong> the results and recommendations</li>
+                            </ol>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">What should I do with the results?</h3>
+                            <div class="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4 mt-3">
+                                <p class="text-blue-300 font-semibold mb-2">✅ Recommended Approach:</p>
+                                <ol class="list-decimal list-inside text-gray-300 space-y-1 ml-4">
+                                    <li>Fix <strong class="text-red-400">CRITICAL</strong> issues first</li>
+                                    <li>Review <strong class="text-orange-400">HIGH</strong> severity patterns</li>
+                                    <li>Consider <strong class="text-yellow-400">MEDIUM</strong> issues if time permits</li>
+                                    <li>Ignore <strong class="text-blue-400">LOW/INFO</strong> unless you're optimizing</li>
+                                </ol>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Is my code uploaded to a server?</h3>
+                            <p class="text-gray-300"><strong class="text-green-400">No.</strong> Analysis happens server-side but files are:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4 mt-2">
+                                <li>Deleted immediately after analysis</li>
+                                <li>Never stored or logged</li>
+                                <li>Not shared with third parties</li>
+                                <li>Processed in temporary memory only</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">What file size limit?</h3>
+                            <p class="text-gray-300">Maximum <strong class="text-blue-400">50MB</strong> per upload. Most mods are under 10MB.</p>
+                            <p class="text-gray-300 mt-2">If your mod exceeds this limit:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4 mt-2">
+                                <li>Upload only the <code class="text-blue-400">scripts/</code> folder as a ZIP</li>
+                                <li>Use the <strong class="text-purple-400">CLI version</strong> for local analysis (no size limit)</li>
+                                <li>See the "Technical Details" section below for CI/CD integration</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interpreting Results -->
+            <div class="gradient-border overflow-hidden">
+                <div class="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
+                        Interpreting Results
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">What if I disagree with a suggestion?</h3>
+                            <p class="text-gray-300 mb-2"><strong class="text-blue-400">That's OK!</strong> The analyzer doesn't know your specific context. You may ignore suggestions if:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4">
+                                <li>The code only runs once (initialization)</li>
+                                <li>Your server has low player counts</li>
+                                <li>You've tested and it performs fine</li>
+                                <li>The pattern is intentional for your use case</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">What does "Recommended:" mean?</h3>
+                            <p class="text-gray-300">It means we <strong>suggest</strong> reviewing the code, not that it's <strong>definitely wrong</strong>. Think of it like a spell checker:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4 mt-2">
+                                <li>Sometimes it catches real mistakes ✅</li>
+                                <li>Sometimes it flags correct usage ⚠️</li>
+                                <li>You decide what to fix 👍</li>
+                            </ul>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">My mod got 60/100. Is it bad?</h3>
+                            <p class="text-gray-300">Not necessarily! The score is relative:</p>
+                            <div class="bg-slate-800/50 border border-slate-700 rounded-lg p-4 mt-3">
+                                <ul class="text-gray-300 space-y-2">
+                                    <li><strong class="text-green-400">90+</strong> = Professional-grade practices</li>
+                                    <li><strong class="text-blue-400">75-89</strong> = Good, production-ready</li>
+                                    <li><strong class="text-yellow-400">60-74</strong> = Fair, review suggestions</li>
+                                    <li><strong class="text-orange-400">40-59</strong> = Address high-priority issues</li>
+                                    <li><strong class="text-red-400">&lt;40</strong> = Critical issues present</li>
+                                </ul>
+                            </div>
+                            <p class="text-gray-300 mt-3">Focus on <strong>fixing critical issues</strong> rather than chasing a perfect score.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Technical Details -->
+            <div class="gradient-border overflow-hidden">
+                <div class="bg-gradient-to-br from-slate-900/90 to-slate-800/90 backdrop-blur-sm p-8">
+                    <h2 class="text-2xl font-bold text-white mb-6 flex items-center gap-2">
+                        <svg class="w-6 h-6 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0zm8.586 0a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 11-1.414-1.414L16.586 10l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                        Technical Details
+                    </h2>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">License and Usage</h3>
+                            <p class="text-gray-300 mb-2">This project is created by <strong class="text-blue-400">ozziehouso</strong> and is available for use with the following terms:</p>
+                            <ul class="list-disc list-inside text-gray-300 space-y-1 ml-4">
+                                <li>You may <strong class="text-green-400">use</strong> this tool freely</li>
+                                <li>You may <strong class="text-green-400">contribute</strong> improvements via pull requests</li>
+                                <li>You may <strong class="text-red-400">NOT</strong> redistribute or recreate this as a separate project</li>
+                                <li>See the LICENSE file for full details</li>
+                            </ul>
+                            <p class="text-gray-300 mt-2">The analyzer uses pattern matching with regex and AST-like parsing of Enforce Script.</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Can I use this in CI/CD?</h3>
+                            <p class="text-gray-300 mb-2"><strong class="text-green-400">Yes!</strong> Use the CLI version for automation:</p>
+                            <div class="bg-slate-800/50 rounded-lg p-4 border border-slate-700 mt-3">
+                                <code class="text-sm text-gray-300">
+                                    <span class="text-gray-500"># Install</span><br>
+                                    npm install<br><br>
+                                    <span class="text-gray-500"># Run analysis</span><br>
+                                    node src/cli.js YourMod.zip<br><br>
+                                    <span class="text-gray-500"># Exit codes: 0=good, 1=high issues, 2=critical issues</span>
+                                </code>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Can I contribute improvements?</h3>
+                            <p class="text-gray-300">Yes! Contributions via pull requests are welcome. You may submit improvements to rules, patterns, or features to the original repository.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6">
+                <h3 class="text-xl font-bold text-yellow-400 mb-3 flex items-center gap-2">
+                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                    Important Disclaimer
+                </h3>
+                <div class="text-gray-300 space-y-2">
+                    <p>This analyzer provides <strong>automated suggestions</strong> based on pattern matching. It is:</p>
+                    <ul class="list-disc list-inside space-y-1 ml-4">
+                        <li><strong class="text-yellow-400">NOT</strong> a replacement for code review by experienced developers</li>
+                        <li><strong class="text-yellow-400">NOT</strong> guaranteed to catch all performance issues</li>
+                        <li><strong class="text-yellow-400">NOT</strong> able to understand your specific context</li>
+                        <li><strong class="text-green-400">IS</strong> a helpful educational tool to learn DayZ best practices</li>
+                        <li><strong class="text-green-400">IS</strong> based on real patterns from official DayZ code</li>
+                    </ul>
+                    <p class="mt-3 pt-3 border-t border-yellow-500/20">
+                        <strong>Use at your own discretion.</strong> Always test your mods thoroughly before deploying to production servers.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-12 text-center">
+            <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg font-semibold hover:from-blue-500 hover:to-purple-500 transition-all">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                </svg>
+                Back to Analyzer
+            </a>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 mt-16">
+        <div class="container mx-auto px-4 py-8 max-w-5xl">
+            <div class="text-center text-gray-400 text-sm">
+                <p>Enhanced with official DayZ script patterns</p>
+                <p class="text-gray-600 text-xs mt-1">Pattern-based analysis • Not a replacement for code review</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

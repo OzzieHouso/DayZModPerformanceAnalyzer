@@ -1,0 +1,35 @@
+{
+  "name": "dayz-mod-performance-analyzer",
+  "version": "1.0.0",
+  "description": "Deep performance analysis tool for DayZ mods",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "dayz-perf": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "server": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node src/cli.js test-mods/sample.zip"
+  },
+  "keywords": [
+    "dayz",
+    "mod",
+    "performance",
+    "analysis"
+  ],
+  "author": "ozziehouso",
+  "license": "MIT",
+  "dependencies": {
+    "adm-zip": "^0.5.10",
+    "chalk": "^5.3.0",
+    "commander": "^11.1.0",
+    "express": "^4.18.2",
+    "multer": "^2.0.0",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  }
+}
