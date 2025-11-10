@@ -221,7 +221,7 @@ Issues and pull requests welcome! Please check existing issues before creating n
 ## Resources
 
 - [DayZ Enforce Script Syntax](https://community.bistudio.com/wiki/DayZ:Enforce_Script_Syntax)
-- [DayZ Modding Discord](https://discord.gg/dayz-modding)
+- [DayZ Modding Discord](https://discord.com/invite/enfusion-modders-452035973786632194)
 - [Bohemia Forums](https://forums.bohemia.net/)
 
 ---
