@@ -222,11 +222,21 @@
                         <div>
                             <h3 class="text-lg font-semibold text-white mb-2">How do I use it?</h3>
                             <ol class="list-decimal list-inside text-gray-300 space-y-2 ml-4">
-                                <li><strong>Create a ZIP</strong> of your mod folder containing the <code class="text-blue-400">scripts/</code> directory</li>
-                                <li><strong>Upload</strong> via drag & drop or click</li>
+                                <li><strong>Prepare your mod:</strong> Either create a ZIP of your mod folder containing the <code class="text-blue-400">scripts/</code> directory, or use a compiled PBO file directly</li>
+                                <li><strong>Upload</strong> via drag & drop or click (supports .zip and .pbo files)</li>
                                 <li><strong>Wait</strong> 5-30 seconds for analysis (depends on mod size)</li>
                                 <li><strong>Review</strong> the results and recommendations</li>
                             </ol>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Can I upload PBO files directly?</h3>
+                            <p class="text-gray-300 mb-2"><strong class="text-green-400">Yes!</strong> The analyzer supports both ZIP and PBO file formats.</p>
+                            <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-4 mt-3">
+                                <p class="text-yellow-300 font-semibold mb-2">⚠️ Beta Feature:</p>
+                                <p class="text-gray-300 text-sm mb-2">PBO support is currently in beta. The parser handles most common PBO formats, but may not work with all variants.</p>
+                                <p class="text-gray-300 text-sm"><strong>If you encounter issues:</strong> Extract your PBO using <a href="https://github.com/winseros/pboman3/releases" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300">PBO Manager</a> and upload as a ZIP file instead.</p>
+                            </div>
                         </div>
 
                         <div>
