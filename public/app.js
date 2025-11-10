@@ -137,24 +137,58 @@ function updateScore(score, rating) {
     const scoreValue = document.getElementById('scoreValue');
     const scoreRating = document.getElementById('scoreRating');
     const scoreProgress = document.getElementById('scoreProgress');
+    const scoreStamp = document.getElementById('scoreStamp');
 
     scoreValue.textContent = score;
     scoreRating.textContent = rating;
 
-    // Color based on rating
-    let color = '#10b981'; // green
-    if (score < 90) color = '#eab308'; // yellow
-    if (score < 75) color = '#f59e0b'; // orange
-    if (score < 60) color = '#ef4444'; // red
-    if (score < 40) color = '#dc2626'; // dark red
+    scoreStamp.classList.remove('stamp-slam');
+    scoreStamp.style.opacity = '0';
+    scoreStamp.style.transform = 'scale(0) rotate(-15deg) translateY(-50%)';
+
+    let color = '#10b981';
+    let stampClass = 'stamp-excellent';
+    let stampText = 'A+';
+
+    if (score >= 90) {
+        color = '#10b981';
+        stampClass = 'stamp-excellent';
+        stampText = 'A+';
+    } else if (score >= 80) {
+        color = '#3b82f6';
+        stampClass = 'stamp-good';
+        stampText = 'A';
+    } else if (score >= 70) {
+        color = '#3b82f6';
+        stampClass = 'stamp-good';
+        stampText = 'B';
+    } else if (score >= 60) {
+        color = '#eab308';
+        stampClass = 'stamp-fair';
+        stampText = 'C';
+    } else if (score >= 50) {
+        color = '#f97316';
+        stampClass = 'stamp-poor';
+        stampText = 'D';
+    } else {
+        color = '#ef4444';
+        stampClass = 'stamp-critical';
+        stampText = 'F';
+    }
 
     scoreProgress.style.stroke = color;
     scoreRating.style.color = color;
 
-    // Animate circle (radius 88, so circumference = 2 * π * 88 = 552.92)
     const circumference = 552.92;
     const offset = circumference - (score / 100) * circumference;
     scoreProgress.style.strokeDashoffset = offset;
+
+    setTimeout(() => {
+        const stampContent = scoreStamp.querySelector('.stamp-content');
+        stampContent.className = `stamp-content ${stampClass}`;
+        stampContent.textContent = stampText;
+        scoreStamp.classList.add('stamp-slam');
+    }, 800);
 }
 
 function displayIssues(issues, summary) {
