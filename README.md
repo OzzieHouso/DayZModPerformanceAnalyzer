@@ -13,6 +13,7 @@ Automated performance analysis tool for DayZ mods. Detects common performance is
 - **Web Interface** - Beautiful dark-themed UI for easy analysis
 
 ## Quick Start
+You can visit https://dayzcodez.dev to use this tool, or create PR's to make this a great analyzer for DayZ PC Mods
 
 ### Installation
 
