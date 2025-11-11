@@ -15,6 +15,7 @@ import path from 'path';
 import { FileParser } from './fileParser.js';
 import { PerformanceAnalyzer } from './analyzer.js';
 import { Reporter } from './reporter.js';
+import { Statistics } from './statistics.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
@@ -23,6 +24,12 @@ const __dirname = dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize statistics
+const statistics = new Statistics();
+statistics.initialize().catch(err => {
+  console.error('Failed to initialize statistics:', err);
+});
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
@@ -74,6 +81,17 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', version: '1.0.0' });
 });
 
+// Statistics endpoint
+app.get('/api/statistics', async (req, res) => {
+  try {
+    const stats = await statistics.getStats();
+    res.json(stats);
+  } catch (error) {
+    console.error('Failed to fetch statistics:', error);
+    res.status(500).json({ error: 'Failed to fetch statistics' });
+  }
+});
+
 // Main analysis endpoint
 app.post('/api/analyze', upload.single('modFile'), async (req, res) => {
   let filePath = null;
@@ -104,6 +122,9 @@ app.post('/api/analyze', upload.single('modFile'), async (req, res) => {
     // Get score and rating
     const score = analyzer.getScore();
     const rating = analyzer.getRating();
+
+    // Record statistics
+    await statistics.recordAnalysis(files.length);
 
     // Format response
     const response = {

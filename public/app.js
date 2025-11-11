@@ -7,6 +7,7 @@
  */
 
 let selectedFile = null;
+let currentResults = null;
 
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -26,6 +27,31 @@ uploadArea.addEventListener('drop', handleDrop);
 fileInput.addEventListener('change', handleFileSelect);
 removeFileBtn.addEventListener('click', clearFile);
 analyzeBtn.addEventListener('click', analyzeFile);
+
+// Load statistics on page load
+loadStatistics();
+
+// Export and reset functionality
+document.getElementById('resetBtn')?.addEventListener('click', resetForm);
+document.getElementById('exportBtn')?.addEventListener('click', toggleExportMenu);
+
+// Close export menu when clicking outside
+document.addEventListener('click', (e) => {
+    const exportMenu = document.getElementById('exportMenu');
+    const exportBtn = document.getElementById('exportBtn');
+    if (exportMenu && !exportMenu.contains(e.target) && !exportBtn.contains(e.target)) {
+        exportMenu.classList.add('hidden');
+    }
+});
+
+// Export options
+document.querySelectorAll('.export-option').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        const format = e.currentTarget.dataset.format;
+        exportResults(format);
+        document.getElementById('exportMenu').classList.add('hidden');
+    });
+});
 
 function handleDragOver(e) {
     e.preventDefault();
@@ -107,6 +133,8 @@ async function analyzeFile() {
         }
 
         displayResults(data);
+        // Reload statistics after successful analysis (with small delay to ensure save completes)
+        setTimeout(() => loadStatistics(), 500);
 
     } catch (err) {
         showError(err.message);
@@ -117,6 +145,9 @@ async function analyzeFile() {
 }
 
 function displayResults(data) {
+    // Store results for export
+    currentResults = data;
+
     updateScore(data.score, data.rating);
 
     document.getElementById('totalFiles').textContent = data.summary.totalFiles;
@@ -393,4 +424,163 @@ function formatBytes(bytes) {
 function showError(message) {
     errorMessage.textContent = message;
     errorDiv.classList.remove('hidden');
+}
+
+async function loadStatistics() {
+    try {
+        const response = await fetch('/api/statistics');
+        const stats = await response.json();
+
+        // Format numbers with thousands separators
+        const formatNumber = (num) => num.toLocaleString();
+
+        document.getElementById('statsAnalyses').textContent = formatNumber(stats.totalAnalyses);
+        document.getElementById('statsFilesChecked').textContent = formatNumber(stats.totalFilesChecked);
+    } catch (err) {
+        console.error('Failed to load statistics:', err);
+        document.getElementById('statsAnalyses').textContent = '0';
+        document.getElementById('statsFilesChecked').textContent = '0';
+    }
+}
+
+function resetForm() {
+    // Clear file selection
+    clearFile();
+
+    // Hide results
+    results.classList.add('hidden');
+    currentResults = null;
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleExportMenu() {
+    const menu = document.getElementById('exportMenu');
+    menu.classList.toggle('hidden');
+}
+
+function exportResults(format) {
+    if (!currentResults) return;
+
+    let content, mimeType, filename;
+    const timestamp = new Date().toISOString().split('T')[0];
+
+    switch (format) {
+        case 'json':
+            content = JSON.stringify(currentResults, null, 2);
+            mimeType = 'application/json';
+            filename = `dayz-mod-analysis-${timestamp}.json`;
+            break;
+
+        case 'txt':
+            content = formatAsTxt(currentResults);
+            mimeType = 'text/plain';
+            filename = `dayz-mod-analysis-${timestamp}.txt`;
+            break;
+
+        case 'xml':
+            content = formatAsXml(currentResults);
+            mimeType = 'application/xml';
+            filename = `dayz-mod-analysis-${timestamp}.xml`;
+            break;
+    }
+
+    // Create download
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+}
+
+function formatAsTxt(data) {
+    let txt = `DayZ Mod Performance Analysis Report\n`;
+    txt += `Generated: ${data.timestamp}\n`;
+    txt += `File: ${data.fileName}\n`;
+    txt += `File Size: ${(data.fileSize / 1024 / 1024).toFixed(2)} MB\n`;
+    txt += `\n${'='.repeat(60)}\n\n`;
+
+    txt += `PERFORMANCE SCORE: ${data.score}/100 - ${data.rating}\n\n`;
+
+    txt += `SUMMARY\n`;
+    txt += `${'-'.repeat(60)}\n`;
+    txt += `Total Files: ${data.summary.totalFiles}\n`;
+    txt += `Total Issues: ${data.summary.totalIssues}\n`;
+    txt += `  - Critical: ${data.summary.critical}\n`;
+    txt += `  - High: ${data.summary.high}\n`;
+    txt += `  - Medium: ${data.summary.medium}\n`;
+    txt += `  - Low: ${data.summary.low}\n\n`;
+
+    if (data.summary.totalIssues > 0) {
+        txt += `ISSUES FOUND\n`;
+        txt += `${'-'.repeat(60)}\n\n`;
+
+        data.issues.forEach(fileResult => {
+            if (fileResult.issues.length > 0) {
+                txt += `File: ${fileResult.file}\n`;
+                fileResult.issues.forEach(issue => {
+                    txt += `  [${issue.severity}] ${issue.ruleName}\n`;
+                    txt += `  ${issue.message}\n`;
+                    if (issue.line) txt += `  Line: ${issue.line}\n`;
+                    txt += `\n`;
+                });
+                txt += `\n`;
+            }
+        });
+    }
+
+    return txt;
+}
+
+function formatAsXml(data) {
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+    xml += `<DayZModAnalysis>\n`;
+    xml += `  <Metadata>\n`;
+    xml += `    <FileName>${escapeXml(data.fileName)}</FileName>\n`;
+    xml += `    <FileSize>${data.fileSize}</FileSize>\n`;
+    xml += `    <Timestamp>${data.timestamp}</Timestamp>\n`;
+    xml += `  </Metadata>\n`;
+    xml += `  <Score value="${data.score}" rating="${escapeXml(data.rating)}"/>\n`;
+    xml += `  <Summary>\n`;
+    xml += `    <TotalFiles>${data.summary.totalFiles}</TotalFiles>\n`;
+    xml += `    <TotalIssues>${data.summary.totalIssues}</TotalIssues>\n`;
+    xml += `    <Critical>${data.summary.critical}</Critical>\n`;
+    xml += `    <High>${data.summary.high}</High>\n`;
+    xml += `    <Medium>${data.summary.medium}</Medium>\n`;
+    xml += `    <Low>${data.summary.low}</Low>\n`;
+    xml += `  </Summary>\n`;
+    xml += `  <Issues>\n`;
+
+    data.issues.forEach(fileResult => {
+        if (fileResult.issues.length > 0) {
+            xml += `    <File path="${escapeXml(fileResult.file)}">\n`;
+            fileResult.issues.forEach(issue => {
+                xml += `      <Issue severity="${issue.severity}"`;
+                if (issue.line) xml += ` line="${issue.line}"`;
+                xml += `>\n`;
+                xml += `        <Rule>${escapeXml(issue.ruleName)}</Rule>\n`;
+                xml += `        <Message>${escapeXml(issue.message)}</Message>\n`;
+                xml += `      </Issue>\n`;
+            });
+            xml += `    </File>\n`;
+        }
+    });
+
+    xml += `  </Issues>\n`;
+    xml += `</DayZModAnalysis>`;
+    return xml;
+}
+
+function escapeXml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&apos;');
 }
